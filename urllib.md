@@ -46,15 +46,53 @@ request.urlretrieve("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_1
 ```
 
 ## request.Request类
+
 > 在你爬取一个网站的时候可以利用这个类设置浏览器的请求头，伪装浏览器运行，而不是直接使用urlopen让浏览器知道你是一个Python爬虫
-
+> 以拉勾网为例，获取ajax中的数据，过程稍微复杂，用到获取session或cookie来进行再次的询问
 ```python
-from urllib import request
 
+import http.cookiejar
+from urllib import request,parse
+import time
 
-request.Request(url= "",headers=)
+url = "https://www.lagou.com/jobs/positionAjax.json?city=%E4%B8%8A%E6%B5%B7&needAddtionalResult=false"
 
-request.urlopen()
+# 构造请求的数据 
+
+form = {
+    "first": "true",
+    "pn": 1,
+    "kd": "Python"
+}
+
+# 构造请求的头
+
+headers = {
+    "origin": "https://www.lagou.com",
+    "referer": "https://www.lagou.com/jobs/list_Python?labelWords=&fromSearch=true&suginput=",
+    "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36",
+    'content-type': 'application/x-www-form-urlencoded; charset=UTF-8'
+}
+
+# 构造存储cookie和session的模型
+cookie = http.cookiejar.CookieJar()
+handler = request.HTTPCookieProcessor(cookie)
+opener = request.build_opener(handler)
+
+# 首次请求获取refer中get url后的cookie和session
+resp = request.Request(url='https://www.lagou.com/jobs/list_Python?labelWords=&fromSearch=true&suginput=', headers=headers)
+response = opener.open(resp,data=parse.urlencode(form).encode("utf-8"))
+
+time.sleep(5)
+
+# 再次使用上次获取的带有session和cookie的模型去post请求，这样服务器就准确识别，给到正确的数据
+resp = request.Request(url, headers=headers)
+response1 = opener.open(resp,data=parse.urlencode(form).encode("utf-8"))
+
+# 普通的获取打开url后的结果，如果网站做了ajax中有cookie和session限制，就没办法用普通的方法来获取
+# result= request.urlopen(resp,timeout=5)
+
+print(response1.read().decode("utf-8"))
 
 ```
 
