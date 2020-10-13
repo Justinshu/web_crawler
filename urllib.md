@@ -137,8 +137,8 @@ request.urlretrieve("https://timgsa.baidu.com/timg?image&quality=80&size=b9999_1
 ```
 
 ## request.Request类
-> 在你爬取一个网站的时候可以利用这个类设置浏览器的请求头，伪装浏览器运行，而不是直接使用urlopen让浏览器知道你是一个Python爬虫
-> 以拉勾网为例，获取ajax中的数据，过程稍微复杂，用到获取session或cookie来进行再次的询问
+> 在你爬取一个网站的时候可以利用这个类设置浏览器的请求头，伪装浏览器运行，而不是直接使用`urlopen`让浏览器知道你是一个`Python`爬虫
+> 以拉勾网为例，获取`ajax`中的数据，过程稍微复杂，用到获取`session`或`cookie`来进行再次的询问
 ```python
 
 import http.cookiejar
@@ -213,8 +213,46 @@ print(resp.read().decode("utf-8"))
 
 
 
+## cookie的解释
+在网站的开发中，`http`请求是无状态的请求，同一个用户发送两次请求他是不知道的是同一个用户发出的请求
+`cookie`的出现就是为了解决这个问题，第一次登陆之后服务器返回一些数据（`cookie`）给浏览器，
+然后浏览器保存在本地，当用户第二次发送请求的时候，就会自动的把上次请求存储的`cookie`数据自动携带给服务器，
+服务器通过浏览器携带的数据就可以知道当前用户是哪一个了，`cookie`存储的数据有限，不同的浏览器有不同的存储大小，
+但是一般不会超过4KB，因此使用`cookie`只能存储一些少量的数据
 
 
+### cookie的格式
+> Set-Cookie:NAME=VALUE; Expires/Max-age=DATE;Path=PATH;Domain=DOMAIN_NAME;SECURE
+
+#### 参数意义:
+  * NAME：cookie的名字
+  * VALUE：cookie的值
+  * Expires：cookie的过期时间
+  * Path：cookie作用的路径
+  * Domain：cookie作用的域名
+  * SECURE：是否只是在https协议下起作用
 
 
+### 使用cookielib库和HTTPCookieProcessor模拟登陆
+`cookie`是指网站为了识别用户和进行`session`跟踪，而存储在用户本地的浏览器上的文本文件，
+`cookie`可以保持登陆信息到下次用户登录与服务器进行会话
+在这里以人人网站为例子，人人网中要访问某个主页，必须先登录才能进行访问，那就必须要有`cookie`信息
+解决的方案有两种，一种是使用浏览器访问然后将`cookie`信息复制下来，放在`headers`中，如：
+```python
+from urllib import request
 
+headers = {
+    "user-agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36",
+    "cookie":"浏览器复制的cookie值",
+}
+
+res = request.Request(url = "",headers=headers)
+result = request.urlopen(res)
+with open("renren.html", "w", encoding="utf-8") as f:
+    f.write(result.read().decode("utf-8"))
+
+```
+
+但是在每次在访问需要`cookie`的界面都需要手动的去浏览器中复制`cookie`值，比较麻烦，在`Python`处理`cookie`的时候
+一般是通过`http.cookiejar`模块和`urllib`模块中的`HTTPCookieProcessor`处理器类一起使用，`http.cookiejar`模块
+主要的作用是提供用于存储`cookie`的对象，而`HTTPCookieProcessor`处理器主要作用是处理这些`cookie`对象，并都贱`handler`对象
