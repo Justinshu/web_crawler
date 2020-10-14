@@ -213,7 +213,7 @@ print(resp.read().decode("utf-8"))
 
 
 
-## cookie的原理
+# cookie的原理
 在网站的开发中，`http`请求是无状态的请求，同一个用户发送两次请求他是不知道的是同一个用户发出的请求
 `cookie`的出现就是为了解决这个问题，第一次登陆之后服务器返回一些数据（`cookie`）给浏览器，
 然后浏览器保存在本地，当用户第二次发送请求的时候，就会自动的把上次请求存储的`cookie`数据自动携带给服务器，
@@ -221,19 +221,19 @@ print(resp.read().decode("utf-8"))
 但是一般不会超过4KB，因此使用`cookie`只能存储一些少量的数据
 
 
-### cookie的格式
+## cookie的格式
 > Set-Cookie:NAME=VALUE; Expires/Max-age=DATE;Path=PATH;Domain=DOMAIN_NAME;SECURE
 
-#### 参数意义:
-  * NAME：cookie的名字
-  * VALUE：cookie的值
-  * Expires：cookie的过期时间
-  * Path：cookie作用的路径
-  * Domain：cookie作用的域名
-  * SECURE：是否只是在https协议下起作用
+### 参数意义:
+  * `NAME`：`cookie`的名字
+  * `VALUE`：`cookie`的值
+  * `Expires`：`cookie`的过期时间
+  * `Path`：`cookie`作用的路径
+  * `Domain`：`cookie`作用的域名
+  * `SECURE`：是否只是在`https`协议下起作用
 
 
-### 使用cookielib库和HTTPCookieProcessor模拟登陆
+## 使用cookielib库和HTTPCookieProcessor模拟登陆
 `cookie`是指网站为了识别用户和进行`session`跟踪，而存储在用户本地的浏览器上的文本文件，
 `cookie`可以保持登陆信息到下次用户登录与服务器进行会话
 在这里以人人网站为例子，人人网中要访问某个主页，必须先登录才能进行访问，那就必须要有`cookie`信息
@@ -259,18 +259,18 @@ with open("renren.html", "w", encoding="utf-8") as f:
 
 
 
-### http.cookiejar模块
-该模块主要的类CookieJar，FileCookieJar，MozillaCookieJar，LWPCookieJar。这四个类的作用分别如下：
+## http.cookiejar模块
+该模块主要的类`CookieJar`，`FileCookieJar`，`MozillaCookieJar`，`LWPCookieJar`。这四个类的作用分别如下：
 
-1.CookieJar：管理HTTP cookie的值、存储HTTP请求生成的cookie、向传出的HTTP请求添加cookie的对象，整个cookie都存储在内存中，
-对于CookieJar实例进行垃圾回收后cookie也将丢失  
-2.FileCookieJar(filename,delayload = None,policy = None):从CookieJar派生而来，用来创建FileCookieJar实例，
-检索cookie信息并将cookie存储在文件中，filename是存储的文件名，delayload为True时支持延迟访问文件，
+1.`CookieJar`：管理`HTTP cookie`的值、存储`HTTP`请求生成的`cookie`、向传出的`HTTP`请求添加`cookie`的对象，整个`cookie`都存储在内存中，
+对于`CookieJar`实例进行垃圾回收后`cookie`也将丢失  
+2.`FileCookieJar(filename,delayload = None,policy = None)`:从`CookieJar`派生而来，用来创建`FileCookieJar`实例，
+检索`cookie`信息并将`cookie`存储在文件中，`filename`是存储的文件名，`delayload`为`True`时支持延迟访问文件，
 即只有在需要的时候才读取文件中的或者在文件中存储数据
-3.MozillaCookieJar(filename,delayload = None,policy = None):从FileCooieJar派生而来，
-创建与Mozilla浏览器cookie.txt兼容的FileCookieJar实例
-4.LWPCookieJar(filename,delayload = None,policy = None):从FileCookieJar派生而来，
-创建与libwww-per标准的Set-Cookies文件格式兼容的FileCookieJar实例
+3.`MozillaCookieJar(filename,delayload = None,policy = None)`:从`FileCooieJar`派生而来，
+创建与`Mozilla`浏览器`cookie.txt`兼容的`FileCookieJar`实例
+4.`LWPCookieJar(filename,delayload = None,policy = None)`:从`FileCookieJar`派生而来，
+创建与`libwww-per`标准的`Set-Cookies`文件格式兼容的`FileCookieJar`实例
 
 ```python
 from urllib import request,parse
@@ -316,4 +316,47 @@ if __name__=="__main__":
 
 ```
 
+## 保存cookie到本地
+保存`cookie`到本地，可以使用`cookiejar`的`save`方法，并且需要指定一个文件名：
+```python
+from urllib import request
+from http.cookiejar import MozillaCookieJar
 
+
+cookiejar = MozillaCookieJar("cookie.txt")
+handler = request.HTTPCookieProcessor(cookiejar)
+opener = request.build_opener(handler)
+
+headers = {
+    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36",
+}
+
+res = request.Request("http://httpbin.org/cookies",headers = headers)
+resp = opener.open(res)
+print(resp.read())
+cookiejar.save(ignore_discard=True,ignore_expires=True)
+
+```
+
+## 从本地加载cookie
+从本地加载`cookie`，需要使用`cookiejar`的`load`方法，并且也需要指定方法
+
+```python
+from urllib import request
+from http.cookiejar import MozillaCookieJar
+
+
+cookiejar = MozillaCookieJar("cookie.txt")
+cookiejar.load(ignore_expires=True,ignore_discard=True)
+handler = request.HTTPCookieProcessor(cookiejar)
+opener = request.build_opener(handler)
+
+headers = {
+    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36",
+}
+
+req = request.Request("http://httpbin.org/cookies",headers=headers)
+resp = opener.open(req)
+print(resp.read())
+
+```
