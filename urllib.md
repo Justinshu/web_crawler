@@ -213,7 +213,7 @@ print(resp.read().decode("utf-8"))
 
 
 
-## cookie的解释
+## cookie的原理
 在网站的开发中，`http`请求是无状态的请求，同一个用户发送两次请求他是不知道的是同一个用户发出的请求
 `cookie`的出现就是为了解决这个问题，第一次登陆之后服务器返回一些数据（`cookie`）给浏览器，
 然后浏览器保存在本地，当用户第二次发送请求的时候，就会自动的把上次请求存储的`cookie`数据自动携带给服务器，
@@ -255,4 +255,65 @@ with open("renren.html", "w", encoding="utf-8") as f:
 
 但是在每次在访问需要`cookie`的界面都需要手动的去浏览器中复制`cookie`值，比较麻烦，在`Python`处理`cookie`的时候
 一般是通过`http.cookiejar`模块和`urllib`模块中的`HTTPCookieProcessor`处理器类一起使用，`http.cookiejar`模块
-主要的作用是提供用于存储`cookie`的对象，而`HTTPCookieProcessor`处理器主要作用是处理这些`cookie`对象，并都贱`handler`对象
+主要的作用是提供用于存储`cookie`的对象，而`HTTPCookieProcessor`处理器主要作用是处理这些`cookie`对象，并构建`handler`对象
+
+
+
+### http.cookiejar模块
+该模块主要的类CookieJar，FileCookieJar，MozillaCookieJar，LWPCookieJar。这四个类的作用分别如下：
+
+1.CookieJar：管理HTTP cookie的值、存储HTTP请求生成的cookie、向传出的HTTP请求添加cookie的对象，整个cookie都存储在内存中，
+对于CookieJar实例进行垃圾回收后cookie也将丢失  
+2.FileCookieJar(filename,delayload = None,policy = None):从CookieJar派生而来，用来创建FileCookieJar实例，
+检索cookie信息并将cookie存储在文件中，filename是存储的文件名，delayload为True时支持延迟访问文件，
+即只有在需要的时候才读取文件中的或者在文件中存储数据
+3.MozillaCookieJar(filename,delayload = None,policy = None):从FileCooieJar派生而来，
+创建与Mozilla浏览器cookie.txt兼容的FileCookieJar实例
+4.LWPCookieJar(filename,delayload = None,policy = None):从FileCookieJar派生而来，
+创建与libwww-per标准的Set-Cookies文件格式兼容的FileCookieJar实例
+
+```python
+from urllib import request,parse
+from http.cookiejar import CookieJar
+
+headers = {
+    "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.75 Safari/537.36",
+} 
+
+def get_opener():
+    
+    # 构造CookieJar对象
+    cookie = CookieJar()
+    # 使用CookieJar对象创建一个HTTPCookieProcessor对象
+    handler = request.HTTPCookieProcessor(cookie)
+    # 使用上一步创建的handler创建opener
+    opener = request.build_opener(handler)
+    
+    return opener
+
+
+def get_login(opener):
+    url = "登录网址"
+    data = {
+        "email":"你的邮箱",
+        "password":"你的密码",
+    }
+    res = request.Request(url,data=parse.urlencode(data).encode("utf-8"),headers=headers,)
+    opener.open(res)
+    
+def visit_profile(opener):
+    url = "只有登录后才能查看的网页"
+    res = request.Request(url,headers=headers)
+    response = opener.open(res)
+    with open("renren.html","w",encoding="utf-8") as f:
+        f.write(response.read().decode("utf-8"))
+
+
+if __name__=="__main__":
+    opener = get_opener()
+    get_login(opener)
+    visit_profile(opener)
+
+```
+
+
