@@ -40,13 +40,13 @@
 
 >`lxml`和正则一样是`c语言`实现的，是一款高性能的`python html/xml `解析器，我们可以利用之前学习的xpath语法来快速定位特定元素和节点信息
 
-1.安装：
+### 安装：
 
    * `pip install lxml` （网速还好可以用）
 
    * `pip install lxml -i https://pypi.douban.com/simple`（网速不好可以用）
 
-2.使用`lxml`库来解析HTML代码：
+### 使用`lxml`库来解析HTML代码：
 
    * 解析`html`字符串：使用`lxml.etree.HTML()`进行解析，示例代码如下：
 ```python
