@@ -21,23 +21,49 @@
 `需要注意的知识点`
 
 1./和//的区别：/代表只获取直接子节点，//代表获取子孙节点，一般//用的比较多，当然也要视情况而定
-2.contains：有时候某个属性中包含了多个值，那么可以使用`contains`函数，示例代码如下：
+
+2.`contains`：有时候某个属性中包含了多个值，那么可以使用`contains`函数，示例代码如下：
 ```xpath
 //div[contains(@class,"jb_detail")]
-
 ```
+
 3.谓语中的下表是从1开始的，不是从0开始的
 
 
-## lxml库
+## `lxml`库
 
-lxml是一个html/xml的解析器，主要的功能是如何解析和提取html和xml数据
+`lxml`是一个`html/xml`的解析器，主要的功能是如何解析和提取`html`和`xml`数据
 
-lxml和正则一样是c语言实现的，是一款高性能的python html/xml 解析器，我们可以利用之前学习的xpath语法来快速定位特定元素和节点信息
+`lxml`和正则一样是`c语言`实现的，是一款高性能的`python html/xml `解析器，我们可以利用之前学习的xpath语法来快速定位特定元素和节点信息
 
 安装：
-pip install lxml （网速还好可以用）
-pip install lxml -i https://pypi.douban.com/simple（网速不好可以用）
 
-### 基本使用
+`pip install lxml` （网速还好可以用）
 
+`pip install lxml -i https://pypi.douban.com/simple`（网速不好可以用）
+
+### 使用`lxml`库来
+
+1.解析`html`字符串：使用`lxml.etree.HTML()`进行解析，示例代码如下：
+```python
+from lxml import etree
+text = """
+字符串类型的内容
+"""
+htmlElement = etree.HTML(text)
+print(etree.tostring(htmlElement,encoding="utf-8").decode("utf-8"))
+
+```
+2.解析文件（html），使用`lxml.etree.parse`来进行解析，示例代码如下：
+```python
+from lxml import etree
+htmlElement = etree.parse("data.html")
+print(etree.tostring(htmlElement,encoding= "utf-8").decode("utf-8"))
+```
+这个函数默认使用`XML`解析器来解析，如果遇到不规范的`HTML`代码的时候就会解析报错，这个时候就要自己创建`HTML`解析器。
+```python
+from lxml import etree
+parser = etree.HTMLParser(encoding="utf-8")
+htmlElement = etree.parse("data.html",parser=parser)
+print(etree.tostring(htmlElement,encoding="utf-8").decode("utf-8"))
+```
