@@ -1,12 +1,14 @@
-[网络请求](网络请求)
+> 对于爬虫的一些简单记录
 
-1.[http协议](网络请求/http协议.md)
+1.[网络请求](网络请求)
 
-2.[urllib](网络请求/urllib.md)
+   - [http协议](网络请求/http协议.md)
 
-3.[requests](网络请求/requests.md)
+   - [urllib](网络请求/urllib.md) 
 
-[数据提取](数据提取)
+   - [requests](网络请求/requests.md)
 
-1.[xpath语法和lxml库](数据提取/xpath语法和lxml库.md)
+2.[数据提取](数据提取)
+
+   - [xpath语法和lxml库](数据提取/xpath语法和lxml库.md)
 
