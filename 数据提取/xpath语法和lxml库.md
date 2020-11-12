@@ -23,16 +23,17 @@
 ```
 
 ### 需要注意的知识点
+```python
+# /和//的区别：/代表只获取直接子节点，//代表获取子孙节点，一般//用的比较多，当然也要视情况而定
 
-* /和//的区别：/代表只获取直接子节点，//代表获取子孙节点，一般//用的比较多，当然也要视情况而定
-
-* `contains`：有时候某个属性中包含了多个值，那么可以使用`contains`函数，示例代码如下：
-```xpath
+# `contains`：有时候某个属性中包含了多个值，那么可以使用`contains`函数，示例代码如下：
+'''
 //div[contains(@class,"jb_detail")]
+'''
+
+# 谓语中的下标是从1开始的，不是从0开始的
+
 ```
-
-* 谓语中的下标是从1开始的，不是从0开始的
-
 
 ## `lxml`库
 
@@ -70,4 +71,6 @@ parser = etree.HTMLParser(encoding="utf-8")
 htmlElement = etree.parse("data.html",parser=parser)
 print(etree.tostring(htmlElement,encoding="utf-8").decode("utf-8"))
 ```
+
+
 
